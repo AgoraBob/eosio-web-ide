@@ -149,8 +149,7 @@ namespace eosio {
 
          //ive.one standard implementation by Evgeny Matershev
          static int get_order_count(const symbol& sym){
-
-
+             return 0;
          }
         //*END ive.one standard implementation
 
@@ -197,7 +196,7 @@ namespace eosio {
 
              uint64_t primary_key()const { return sym.code().raw(); }
          };
-         typedef eosio::multi_index< "order_counts"_n, order_count > order_counts;
+         typedef eosio::multi_index< "ordercounts"_n, order_count > ordercounts;
          //*END ive.one standard implementation
    };
    /** @}*/ // end of @defgroup eosiotoken eosio.token tests
