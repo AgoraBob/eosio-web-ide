@@ -147,6 +147,13 @@ namespace eosio {
             return ac.balance;
          }
 
+         //ive.one standard implementation by Evgeny Matershev
+         static int get_order_count(const symbol& sym){
+
+
+         }
+        //*END ive.one standard implementation
+
          using create_action = eosio::action_wrapper<"create"_n, &token::create>;
          using issue_action = eosio::action_wrapper<"issue"_n, &token::issue>;
          using retire_action = eosio::action_wrapper<"retire"_n, &token::retire>;
@@ -173,6 +180,25 @@ namespace eosio {
 
          void sub_balance( const name& owner, const asset& value );
          void add_balance( const name& owner, const asset& value, const name& ram_payer );
+
+         //ive.one standard implementation by Evgeny Matershev
+         struct [[eosio::table]] order {
+            int orderId;
+            name from;
+            name to;
+            asset amount;
+
+            uint64_t primary_key()const { return orderId; }
+         };
+         typedef eosio::multi_index< "orders"_n, order > orders;
+         struct [[eosio::table]] order_count {
+             int count;
+             symbol sym;
+
+             uint64_t primary_key()const { return sym.code().raw(); }
+         };
+         typedef eosio::multi_index< "order_counts"_n, order_count > order_counts;
+         //*END ive.one standard implementation
    };
    /** @}*/ // end of @defgroup eosiotoken eosio.token tests
 } /// namespace eosio
