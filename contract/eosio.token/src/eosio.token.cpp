@@ -24,17 +24,6 @@ void token::create( const name&   issuer,
        s.max_supply    = maximum_supply;
        s.issuer        = issuer;
     });
-
-    //ive.one standard implementation by Evgeny Matershev
-    ordercounts ordercountstable( get_self(), sym.code().raw() );
-    auto existingOC = ordercountstable.find( sym.code().raw() );
-    check( existingOC == ordercountstable.end(), "token with symbol already exists" ); //TODO: check if valid
-
-    ordercountstable.emplace( get_self(), [&]( auto& oc ) {
-       oc.sym = maximum_supply.symbol;
-       oc.count    = 0;
-    });
-    //end of ive.one standard implementation by Evgeny Matershev
 }
 
 
@@ -134,6 +123,8 @@ void token::approve( uint64_t order_id ) {
 
 
     add_balance( to, quantity, payer );
+
+    orderstable.erase(ord); //removing the order after successful transfer
 }
 
 void token::sub_balance( const name& owner, const asset& value ) {

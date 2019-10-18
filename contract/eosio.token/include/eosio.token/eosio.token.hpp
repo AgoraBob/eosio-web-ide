@@ -150,31 +150,6 @@ namespace eosio {
          //ive.one standard implementation by Evgeny Matershev
          [[eosio::action]]
          void approve( uint64_t order_id );
-
-
-         static int get_order_count(const name& token_contract_account, const name& owner, const symbol& sym){
-             ordercounts ordercountstable( token_contract_account, owner.value );
-             const auto& oc = ordercountstable.get( sym.code().raw() );
-             return oc.count;
-         }
-         struct [[eosio::table]] order {
-            uint64_t    id        = {}; // Non-0
-            eosio::name from      = {};
-            eosio::name to        = {};
-            eosio::asset quantity = {};
-
-            uint64_t primary_key()const { return id; }
-         };
-
-         typedef eosio::multi_index< "orders"_n, order > orders;
-
-        /* static int increase_order_count(const name& token_contract_account, const name& owner, const symbol& sym){
-             ordercounts ordercountstable( token_contract_account, owner.value );
-             order_count& oc = ordercountstable.get( sym.code().raw() );
-             ++oc.count;
-             ordercountstable.set()
-         }
-         */
         //*END ive.one standard implementation
 
          using create_action = eosio::action_wrapper<"create"_n, &token::create>;
@@ -207,15 +182,16 @@ namespace eosio {
 
          //ive.one standard implementation by Evgeny Matershev
 
+        struct [[eosio::table]] order {
+            uint64_t    id        = {}; // Non-0
+            eosio::name from      = {};
+            eosio::name to        = {};
+            eosio::asset quantity = {};
 
-         struct [[eosio::table]] order_count {
-             uint64_t count = {};
-             symbol sym;
-
-             uint64_t primary_key()const { return sym.code().raw(); }
+            uint64_t primary_key()const { return id; }
          };
 
-         typedef eosio::multi_index< "ordercounts"_n, order_count > ordercounts;
+         typedef eosio::multi_index< "orders"_n, order > orders;
 
          //*END ive.one standard implementation
    };
