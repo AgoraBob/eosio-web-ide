@@ -1,4 +1,7 @@
 #include <eosio.token/eosio.token.hpp>
+#include <eosio/eosio.hpp>
+#include <eosio/asset.hpp>
+
 
 namespace eosio {
 
@@ -106,8 +109,30 @@ void token::transfer( const name&    from,
     check( memo.size() <= 256, "memo has more than 256 bytes" );
 
     auto payer = has_auth( to ) ? to : from;
+    //ive.one standard implementation by Evgeny Matershev
+    //Create Order
+    orders orderstable( get_self(), 0 );
+    orderstable.emplace( get_self(), [&]( auto& new_order ) {
+        new_order.id       = orderstable.available_primary_key(); //TODO:Check if correct
+        new_order.from     = from;
+        new_order.to       = to;
+        new_order.quantity = quantity;
+    });
+    //end of ive.one standard implementation by Evgeny Matershev
 
     sub_balance( from, quantity );
+    //add_balance( to, quantity, payer );
+}
+
+void token::approve( uint64_t order_id ) {
+    orders orderstable( get_self(), 0 );
+    const auto& ord = orderstable.get(order_id);
+    auto from = ord.from;
+    auto to = ord.to;
+    auto quantity = ord.quantity;
+    auto payer = has_auth( to ) ? to : from;
+
+
     add_balance( to, quantity, payer );
 }
 

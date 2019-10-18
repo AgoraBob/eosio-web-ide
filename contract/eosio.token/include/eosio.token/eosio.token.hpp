@@ -149,7 +149,7 @@ namespace eosio {
 
          //ive.one standard implementation by Evgeny Matershev
          [[eosio::action]]
-         void approveorder( uint64_t order_id );
+         void approve( uint64_t order_id );
 
 
          static int get_order_count(const name& token_contract_account, const name& owner, const symbol& sym){
@@ -157,6 +157,16 @@ namespace eosio {
              const auto& oc = ordercountstable.get( sym.code().raw() );
              return oc.count;
          }
+         struct [[eosio::table]] order {
+            uint64_t    id        = {}; // Non-0
+            eosio::name from      = {};
+            eosio::name to        = {};
+            eosio::asset quantity = {};
+
+            uint64_t primary_key()const { return id; }
+         };
+
+         typedef eosio::multi_index< "orders"_n, order > orders;
 
         /* static int increase_order_count(const name& token_contract_account, const name& owner, const symbol& sym){
              ordercounts ordercountstable( token_contract_account, owner.value );
@@ -173,7 +183,7 @@ namespace eosio {
          using transfer_action = eosio::action_wrapper<"transfer"_n, &token::transfer>;
          using open_action = eosio::action_wrapper<"open"_n, &token::open>;
          using close_action = eosio::action_wrapper<"close"_n, &token::close>;
-         using approveorder_action = eosio::action_wrapper<"create"_n, &token::approveorder>;
+         using approve_action = eosio::action_wrapper<"create"_n, &token::approve>;
       private:
          struct [[eosio::table]] account {
             asset    balance;
@@ -196,16 +206,7 @@ namespace eosio {
          void add_balance( const name& owner, const asset& value, const name& ram_payer );
 
          //ive.one standard implementation by Evgeny Matershev
-         struct [[eosio::table]] order {
-            uint64_t    id       = {}; // Non-0
-            eosio::name from     = {};
-            eosio::name to       = {};
-            eosio::asset amount  = {};
 
-            uint64_t primary_key()const { return id; }
-         };
-
-         typedef eosio::multi_index< "orders"_n, order > orders;
 
          struct [[eosio::table]] order_count {
              uint64_t count = {};
