@@ -148,9 +148,19 @@ namespace eosio {
          }
 
          //ive.one standard implementation by Evgeny Matershev
-         static int get_order_count(const symbol& sym){
-             return 0;
+         static int get_order_count(const name& token_contract_account, const name& owner, const symbol& sym){
+             ordercounts ordercountstable( token_contract_account, owner.value );
+             const auto& oc = ordercountstable.get( sym.code().raw() );
+             return oc.count;
          }
+
+        /* static int increase_order_count(const name& token_contract_account, const name& owner, const symbol& sym){
+             ordercounts ordercountstable( token_contract_account, owner.value );
+             order_count& oc = ordercountstable.get( sym.code().raw() );
+             ++oc.count;
+             ordercountstable.set()
+         }
+         */
         //*END ive.one standard implementation
 
          using create_action = eosio::action_wrapper<"create"_n, &token::create>;
@@ -182,21 +192,25 @@ namespace eosio {
 
          //ive.one standard implementation by Evgeny Matershev
          struct [[eosio::table]] order {
-            int orderId;
-            name from;
-            name to;
-            asset amount;
+            uint64_t    id       = {}; // Non-0
+            eosio::name from     = {};
+            eosio::name to       = {};
+            eosio::asset amount  = {};
 
-            uint64_t primary_key()const { return orderId; }
+            uint64_t primary_key()const { return id; }
          };
+
          typedef eosio::multi_index< "orders"_n, order > orders;
+
          struct [[eosio::table]] order_count {
-             int count;
+             uint64_t count = {};
              symbol sym;
 
              uint64_t primary_key()const { return sym.code().raw(); }
          };
+
          typedef eosio::multi_index< "ordercounts"_n, order_count > ordercounts;
+
          //*END ive.one standard implementation
    };
    /** @}*/ // end of @defgroup eosiotoken eosio.token tests
