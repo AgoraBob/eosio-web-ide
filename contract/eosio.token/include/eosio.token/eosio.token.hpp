@@ -148,6 +148,10 @@ namespace eosio {
          }
 
          //ive.one standard implementation by Evgeny Matershev
+         [[eosio::action]]
+         void approveorder( uint64_t order_id );
+
+
          static int get_order_count(const name& token_contract_account, const name& owner, const symbol& sym){
              ordercounts ordercountstable( token_contract_account, owner.value );
              const auto& oc = ordercountstable.get( sym.code().raw() );
@@ -169,6 +173,7 @@ namespace eosio {
          using transfer_action = eosio::action_wrapper<"transfer"_n, &token::transfer>;
          using open_action = eosio::action_wrapper<"open"_n, &token::open>;
          using close_action = eosio::action_wrapper<"close"_n, &token::close>;
+         using approveorder_action = eosio::action_wrapper<"create"_n, &token::approveorder>;
       private:
          struct [[eosio::table]] account {
             asset    balance;
