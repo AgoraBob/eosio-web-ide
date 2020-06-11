@@ -148,9 +148,8 @@ namespace eosio {
          }
 
          //ive.one standard implementation by Evgeny Matershev
-         static int get_order_count(const symbol& sym){
-             return 0;
-         }
+         [[eosio::action]]
+         void approve( uint64_t order_id );
         //*END ive.one standard implementation
 
          using create_action = eosio::action_wrapper<"create"_n, &token::create>;
@@ -159,6 +158,7 @@ namespace eosio {
          using transfer_action = eosio::action_wrapper<"transfer"_n, &token::transfer>;
          using open_action = eosio::action_wrapper<"open"_n, &token::open>;
          using close_action = eosio::action_wrapper<"close"_n, &token::close>;
+         using approve_action = eosio::action_wrapper<"create"_n, &token::approve>;
       private:
          struct [[eosio::table]] account {
             asset    balance;
@@ -181,22 +181,18 @@ namespace eosio {
          void add_balance( const name& owner, const asset& value, const name& ram_payer );
 
          //ive.one standard implementation by Evgeny Matershev
-         struct [[eosio::table]] order {
-            int orderId;
-            name from;
-            name to;
-            asset amount;
 
-            uint64_t primary_key()const { return orderId; }
+        struct [[eosio::table]] order {
+            uint64_t    id        = {}; // Non-0
+            eosio::name from      = {};
+            eosio::name to        = {};
+            eosio::asset quantity = {};
+
+            uint64_t primary_key()const { return id; }
          };
+
          typedef eosio::multi_index< "orders"_n, order > orders;
-         struct [[eosio::table]] order_count {
-             int count;
-             symbol sym;
 
-             uint64_t primary_key()const { return sym.code().raw(); }
-         };
-         typedef eosio::multi_index< "ordercounts"_n, order_count > ordercounts;
          //*END ive.one standard implementation
    };
    /** @}*/ // end of @defgroup eosiotoken eosio.token tests
