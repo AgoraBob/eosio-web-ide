@@ -115,16 +115,31 @@ void token::transfer( const name&    from,
 
 void token::approve( uint64_t order_id ) {
     orders orderstable( get_self(), 0 );
+    auto existing = orderstable.find(order_id);
+    check( existing != orderstable.end(), "order not found, id=" + std::to_string(order_id) );
+
     const auto& ord = orderstable.get(order_id);
     auto from = ord.from;
     auto to = ord.to;
     auto quantity = ord.quantity;
     auto payer = has_auth( to ) ? to : from;
 
-
     add_balance( to, quantity, payer );
-
     orderstable.erase(ord); //removing the order after successful transfer
+}
+
+void token::cancel( uint64_t order_id ) {
+    orders orderstable( get_self(), 0 );
+    auto existing = orderstable.find(order_id);
+    check( existing != orderstable.end(), "order not found, id=" + std::to_string(order_id) );
+
+    const auto& ord = orderstable.get(order_id);
+    auto from = ord.from;
+    auto quantity = ord.quantity;
+    auto payer = from;
+
+    add_balance( from, quantity, payer );
+    orderstable.erase(ord); //removing the order after cancellation of transfer
 }
 
 void token::sub_balance( const name& owner, const asset& value ) {

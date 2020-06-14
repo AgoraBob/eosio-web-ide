@@ -147,10 +147,13 @@ namespace eosio {
             return ac.balance;
          }
 
-         //ive.one standard implementation by Evgeny Matershev
+         //ive.one standard implementation
          [[eosio::action]]
          void approve( uint64_t order_id );
-        //*END ive.one standard implementation
+
+         [[eosio::action]]
+         void cancel( uint64_t order_id );
+        //*END ive.one extension
 
          using create_action = eosio::action_wrapper<"create"_n, &token::create>;
          using issue_action = eosio::action_wrapper<"issue"_n, &token::issue>;
