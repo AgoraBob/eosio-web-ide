@@ -1,6 +1,8 @@
 #include <eosio.token/eosio.token.hpp>
 #include <eosio/eosio.hpp>
 #include <eosio/asset.hpp>
+#include <eosio/crypto.hpp>
+#include <eosio/transaction.hpp>
 
 
 namespace eosio {
@@ -98,7 +100,8 @@ void token::transfer( const name&    from,
     check( memo.size() <= 256, "memo has more than 256 bytes" );
 
     auto payer = has_auth( to ) ? to : from;
-    //ive.one standard implementation by Evgeny Matershev
+    auto tx_id = get_trx_id();
+    //ive.one standard migrated from erc20
     //Create Order
     orders orderstable( get_self(), 0 );
     orderstable.emplace( get_self(), [&]( auto& new_order ) {
@@ -106,11 +109,21 @@ void token::transfer( const name&    from,
         new_order.from     = from;
         new_order.to       = to;
         new_order.quantity = quantity;
+        new_order.memo     = memo;
+        new_order.tx_id    = tx_id;
     });
-    //end of ive.one standard implementation by Evgeny Matershev
+    //end of ive.one migrated from erc20
 
     sub_balance( from, quantity );
-    //add_balance( to, quantity, payer );
+    //add_balance( to, quantity, payer );  // interrupt the transfer till approval
+}
+
+checksum256  token::get_trx_id() {
+    size_t size = transaction_size();
+    char buf[size];
+    size_t read = read_transaction( buf, size );
+    check( size == read, "read_transaction failed");
+    return sha256( buf, read );
 }
 
 void token::approve( uint64_t order_id ) {

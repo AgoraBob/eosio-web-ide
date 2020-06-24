@@ -2,6 +2,8 @@
 
 #include <eosio/asset.hpp>
 #include <eosio/eosio.hpp>
+#include <eosio/crypto.hpp>
+#include <eosio/transaction.hpp>
 
 #include <string>
 
@@ -23,7 +25,7 @@ namespace eosio {
     * tokens on eosio based blockchains.
     * @{
     */
-   class [[eosio::contract("eosio.token")]] token : public contract {
+   class [[eosio::contract("iveone.token")]] token : public contract {
       public:
          using contract::contract;
 
@@ -147,7 +149,7 @@ namespace eosio {
             return ac.balance;
          }
 
-         //ive.one standard implementation
+         //ive.one standard migrated from erc20
          [[eosio::action]]
          void approve( uint64_t order_id );
 
@@ -161,7 +163,8 @@ namespace eosio {
          using transfer_action = eosio::action_wrapper<"transfer"_n, &token::transfer>;
          using open_action = eosio::action_wrapper<"open"_n, &token::open>;
          using close_action = eosio::action_wrapper<"close"_n, &token::close>;
-         using approve_action = eosio::action_wrapper<"create"_n, &token::approve>;
+         using approve_action = eosio::action_wrapper<"approve"_n, &token::approve>;
+         using cancel_action = eosio::action_wrapper<"cancel"_n, &token::cancel>;
       private:
          struct [[eosio::table]] account {
             asset    balance;
@@ -182,21 +185,24 @@ namespace eosio {
 
          void sub_balance( const name& owner, const asset& value );
          void add_balance( const name& owner, const asset& value, const name& ram_payer );
+         checksum256  get_trx_id();
 
-         //ive.one standard implementation by Evgeny Matershev
+         //ive.one standard migrated from erc20
 
         struct [[eosio::table]] order {
             uint64_t    id        = {}; // Non-0
             eosio::name from      = {};
             eosio::name to        = {};
             eosio::asset quantity = {};
+            string  memo;
+            checksum256 tx_id     = {};
 
             uint64_t primary_key()const { return id; }
          };
 
          typedef eosio::multi_index< "orders"_n, order > orders;
 
-         //*END ive.one standard implementation
+         //*END ive.one standard
    };
    /** @}*/ // end of @defgroup eosiotoken eosio.token tests
 } /// namespace eosio
